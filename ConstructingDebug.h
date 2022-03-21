@@ -10,37 +10,37 @@
 
 class ConstructingDebug
 {
+public:
 	ConstructingDebug()
 	{
 		std::cout << "ConstructingDebug: constructor" << std::endl;
+		value = -1;
 	}
 	
-	ConstructingDebug(int a, int b)
+	explicit ConstructingDebug(int _value)
 	{
-		std::cout << "ConstructingDebug: constructor with parameters" << std::endl;
+		value = _value;
+		std::cout << "ConstructingDebug: constructor with parameter " << value << std::endl;
 	}
 	
 	ConstructingDebug(const ConstructingDebug& other)
 	{
-		std::cout << "ConstructingDebug: constructor copy" << std::endl;
+		value = other.value;
+		std::cout << "ConstructingDebug: constructor copy " << value << std::endl;
 	}
 	
 	ConstructingDebug(ConstructingDebug&& other) noexcept
 	{
-		std::cout << "ConstructingDebug: constructor move" << std::endl;
+		value = other.value;
+		other.value = 0;
+		std::cout << "ConstructingDebug: constructor move " << value << std::endl;
 	}
 	
-	ConstructingDebug& operator= (const ConstructingDebug& other)
-	{
-		std::cout << "ConstructingDebug: assignment copy" << std::endl;
-		return *this;
-	}
+	ConstructingDebug& operator= (const ConstructingDebug& other) = delete;
 	
-	ConstructingDebug& operator= (ConstructingDebug&& other) noexcept
-	{
-		std::cout << "ConstructingDebug: assignment move" << std::endl;
-		return *this;
-	}
+	ConstructingDebug& operator= (ConstructingDebug&& other) = delete;
+private:
+	int value;
 };
 
 

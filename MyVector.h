@@ -15,8 +15,8 @@ class MyVector
 {
 public:
 	
-	template <typename T> requires (sizeof(T) > 1)
-	std::optional<int> Insert(T&& value);
+	template <typename T> requires (std::is_same_v<Value, std::decay_t<T>>)
+	int Insert(T&& value);
 	bool Delete(int index);
 	std::optional<Value> operator[](int index);
 private:
@@ -25,19 +25,20 @@ private:
 };
 
 // perfect forwarding
-//template <typename Value>
-//template <typename T>
-//	requires (std::is_same_v<Value, std::decay_t<T>>)
-//std::optional<int> MyVector<Value>::Insert(T&& value)
-//{
-//	if (m_deletedIndices.Empty())
-//	{
-//		m_vector.emplace_back(value);
-//		return m_vector.size() - 1;
-//	}
-//
-//	int indexToInsert = m_deletedIndices.Pop();
-//	m_vector[indexToInsert].emplace(value);
+template <typename Value>
+template <typename T>
+	requires (std::is_same_v<Value, std::decay_t<T>>)
+int MyVector<Value>::Insert(T&& value)
+{
+	if (m_deletedIndices.Empty())
+	{
+		m_vector.emplace_back(std::forward<Value>(value));
+		return m_vector.size() - 1;
+	}
+
+	int indexToInsert = m_deletedIndices.Pop();
+	m_vector[indexToInsert].emplace(std::forward<Value>(value));
+	return indexToInsert;
 }
 
 template <typename Value>
@@ -45,8 +46,11 @@ bool MyVector<Value>::Delete(int index)
 {
 	if (index >= m_vector.size())
 		return false;
+	if (!m_vector[index].has_value())
+		return false;
 	m_vector[index].reset();
 	m_deletedIndices.Push(index);
+	return true;
 }
 
 template <typename Value>
